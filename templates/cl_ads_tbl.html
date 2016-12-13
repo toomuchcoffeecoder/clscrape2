@@ -1,5 +1,4 @@
 {% extends "base.html" %}
-{% block title %}Index{% endblock %}
 {% block head %}
     {{ super() }}
     <!-- Include one of jTable styles. -->
@@ -76,10 +75,6 @@
 
 {% endblock %}
 {% block content %}
-    <h1>Index</h1>
-    <p class="important">
-    Welcome to my awesome homepage.
-    </p>
     <form id="search_form">
         <label for="search">Search</label>
         <input type="text" id="search_term" name="search">
