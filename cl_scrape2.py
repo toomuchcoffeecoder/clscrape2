@@ -1,10 +1,10 @@
+from pprint import pprint
 import re
 
 import bs4
-import requests
 import dateparser
-import ftfy
-from pprint import pprint
+import requests
+import pytz
 
 class CLScrape:
 
@@ -13,8 +13,10 @@ class CLScrape:
         self.sections = {'computer gigs': 'search/cpg?query=%20&s=0&format=rss'}
         self.url_suffix = self.sections[section]
         self.re_link = re.compile(r'(?<=<link/>).+(?=\s)')
+        self.re_link_key = re.compile(r'[0-9]+(?=\.html)')
         self.re_date = re.compile(r'(?<=<dc:date>).+(?=\</dc:date>)')
         self.re_CDATA = re.compile(r'(?<=CDATA\[).+(?=\]\]|\s)')
+        self.utc = pytz.timezone('UTC')
 
     def get_sites(self, country_param=None):
         response = requests.get(self.sites_url)
@@ -37,10 +39,12 @@ class CLScrape:
         url = 'http:{}{}'.format(site['city_href'], self.url_suffix)
         print(url)
         response = requests.get(url)
-        return response.text
+        return {'state': site['state'],
+                'city': site['city'],
+                'page': response.text}
 
     def parse_ads(self, page):
-        soup = bs4.BeautifulSoup(page, "html5lib")
+        soup = bs4.BeautifulSoup(page['page'], "html5lib")
         items = soup.find_all('item')
         for e in items:
             title = e.find('title').contents[0]
@@ -51,20 +55,20 @@ class CLScrape:
             description = m.group(0)
             m = self.re_link.search(str(e))
             link = m.group(0)
+            m = self.re_link_key.search(link)
+            link_key = m.group(0)
             m = self.re_date.search(str(e))
-            dt = dateparser.parse(m.group(0),
+            date_str = m.group(0)
+            dt = dateparser.parse(date_str,
                     settings={'RETURN_AS_TIMEZONE_AWARE': True})
-            yield {'title': title,
+            dt = dt.astimezone(self.utc)
+            yield {'state': str(page['state']),
+                    'city': page['city'],
+                    'title': title,
                     'description': description,
                     'link': link,
+                    'link_key': link_key,
+                    'date_str': date_str,
                     'dt': dt}
 
 
-if __name__ == '__main__':
-    scraper = CLScrape('computer gigs')
-    pprint(scraper.sections)
-    for site in scraper.get_sites('US'):
-        if site['city'] != 'san francisco bay area': continue
-        pprint(site)
-        for e in scraper.parse_ads(scraper.get_ads(site)):
-            pprint(e)
