@@ -1,2 +1,8 @@
 *.swp
 .python-version
+__pycache__/*
+database.py
+models/
+scratch*
+.gitignore
+settings.py

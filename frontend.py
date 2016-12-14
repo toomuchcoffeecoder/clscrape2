@@ -3,10 +3,10 @@ from flask import render_template, url_for, jsonify
 
 from flask_sqlalchemy import SQLAlchemy
 
+from settings import connection_str
+
 app = Flask(__name__)
-app.config['SQLALCHEMY_DATABASE_URI'] = ('mysql+mysqlconnector://'
-                                        'tools:YPrn3Uy8OX61DQlFjinb'
-                                        '@localhost/cl_scrape')
+app.config['SQLALCHEMY_DATABASE_URI'] = connection_str
 # set SQLALCHEMY_POOL_RECYCLE to 10 (seconds?) less than mysql
 # wait_timeout which is currently 600
 # hopefully this will eleminate the connection error encounter

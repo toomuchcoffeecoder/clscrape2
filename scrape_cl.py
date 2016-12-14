@@ -5,9 +5,9 @@ from sqlalchemy import exc
 from sqlalchemy import MetaData, Table, Column, Integer, String, Text, DateTime
 
 from cl_scrape2 import CLScrape
+from settings import connection_str
 
-engine = create_engine('mysql+mysqlconnector://tools:YPrn3Uy8OX61DQlFjinb'
-        '@localhost/cl_scrape')
+engine = create_engine(connection_str)
 
 metadata = MetaData()
 cl_ad = Table('cl_ad', metadata,
@@ -35,6 +35,7 @@ if __name__ == '__main__':
         for e in scraper.parse_ads(scraper.get_ads(site)):
             print(e)
             try:
+                # if link_key is allready present pass
                 conn.execute(ins, state=e['state'], city=e['city'],
                         title=e['title'], description=e['description'], 
                         link=e['link'], link_key=e['link_key'],
