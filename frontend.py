@@ -17,19 +17,20 @@ db = SQLAlchemy(app)
 
 class ClAd(db.Model):
     __tablename__ = 'cl_ad'
-    ad_id = db.Column(db.Integer, primary_key=True)
+    ad_id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     state = db.Column(db.String(64))
     city = db.Column(db.String(64))
     title = db.Column(db.String(255))
     description = db.Column(db.Text())
     link = db.Column(db.String(255))
-    link_key = db.Column(db.String(25), primary_key=True)
+    link_key = db.Column(db.String(25), primary_key=True, unique=True)
     date_str = db.Column(db.String(128))
     dt = db.Column(db.DateTime(timezone=True))
+    new = db.Column(db.Boolean)
 
     def __init__(self, ad_id, state, city, title,
                 description, link, link_key,
-                date_str, dt):
+                date_str, dt, new):
         self.ad_id = ad_id
         self.state = state
         self.city = city
@@ -39,6 +40,7 @@ class ClAd(db.Model):
         self.link_key = link_key
         self.date_str = date_str
         self.dt = dt
+        self.new = new
 
 
 @app.route('/cl_ads_table', methods=['GET'])
@@ -74,7 +76,8 @@ def cl_ad_list():
             'link': e.link,
             'link_key': e.link_key,
             'date_str': e.date_str,
-            'dt': e.dt}
+            'dt': e.dt,
+            'new_rec': e.new}
         result['Records'].append(row)
 
     return jsonify(result)

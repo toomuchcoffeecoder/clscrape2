@@ -6,6 +6,9 @@ import dateparser
 import requests
 import pytz
 
+from settings import proxies
+from random import choice
+
 class CLScrape:
 
     def __init__(self, section):
@@ -19,8 +22,8 @@ class CLScrape:
         self.utc = pytz.timezone('UTC')
 
     def get_sites(self, country_param=None):
-        response = requests.get(self.sites_url)
-        soup = bs4.BeautifulSoup(response.text)
+        response = requests.get( self.sites_url )
+        soup = bs4.BeautifulSoup( response.text )
         countries = soup.find_all('h1')
         for country in countries:
             country_name = tuple(e for e in country)[0]['name']
@@ -38,7 +41,8 @@ class CLScrape:
     def get_ads(self, site):
         url = 'http:{}{}'.format(site['city_href'], self.url_suffix)
         print(url)
-        response = requests.get(url)
+        # response = requests.get( url, proxies={'http': 'http://45.56.93.146:3128','https': 'https://45.56.93.146:3128'} )
+        response = requests.get( url, proxies=None )
         return {'state': site['state'],
                 'city': site['city'],
                 'page': response.text}

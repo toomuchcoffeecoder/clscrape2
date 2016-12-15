@@ -7,6 +7,8 @@
     <style type="text/css">
     <!-- Include jTable script file. -->
         .important { color: #336699; }
+        div.jtable-main-container>table.jtable>tbody>tr.jtable-row-even.new_rec {background-color: #90f9a7 }
+        div.jtable-main-container>table.jtable>tbody>tr.new_rec {background-color: #53e873}
     </style>
     <script src="{{url_for('static', filename='js/jquery-3.1.1.min.js')}}" type="text/javascript"></script>
     <script src="{{url_for('static', filename='jquery-ui-1.12.1/jquery-ui.min.js')}}" type="text/javascript"></script>
@@ -20,6 +22,12 @@
                 sorting: true,
                 actions: {
                     listAction: '/cl_ads_list'
+                },
+                rowInserted: function(event, data) {
+                    if (data.record['new_rec']) {
+                    // if new record then ad new_rec class to row so it background is green
+                        $(this).find("tr").addClass("new_rec")
+                    }
                 },
                 fields: {
                     ad_id: {
@@ -59,6 +67,9 @@
                     dt: {
                         title: 'dt',
                         width: '12%'
+                    },
+                    new_rec: {
+                        list: false
                     }
                 }
             })
