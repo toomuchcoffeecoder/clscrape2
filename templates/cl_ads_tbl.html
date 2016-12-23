@@ -5,7 +5,6 @@
     <link href="{{url_for('static', filename='jquery-ui-1.12.1/jquery-ui.min.css')}}" rel="stylesheet" type="text/css" />
     <link href="{{url_for('static', filename='jtable.2.4.0/themes/metro/blue/jtable.min.css')}}" rel="stylesheet" type="text/css" />
     <style type="text/css">
-    <!-- Include jTable script file. -->
         .important { color: #336699; }
         div.jtable-main-container>table.jtable>tbody>tr.jtable-row-even.new_rec {background-color: #90f9a7 }
         div.jtable-main-container>table.jtable>tbody>tr.new_rec {background-color: #53e873}
@@ -33,6 +32,8 @@
                 border-radius: 3px;
                 margin-bottom: 2px;}
 
+    input.search-ctrl.active, input.search-ctrl:active {border-style: inset;}
+
     input[type=text] {border-style: inset;
                 border-radius: 4px;}
    
@@ -49,6 +50,7 @@
                 title: 'Craigs List Ad Table',
                 paging: true,
                 sorting: true,
+                defaultSorting: 'dt DESC',
                 actions: {
                     listAction: '/cl_ads_list'
                 },
@@ -73,11 +75,11 @@
                     },
                     title: {
                         title: 'Title',
-                        width: '16%'
+                        width: '12%'
                     },
                     description: {
                         title: 'Description',
-                        width: '24%',
+                        width: '28%',
                         sorting: false
                     },
                     link: {
@@ -87,7 +89,6 @@
                     },
                     link_key: {
                         title: 'link_key',
-                        width: '12%',
                         list: false
                     },
                     date_str: {

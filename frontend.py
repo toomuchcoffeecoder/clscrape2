@@ -71,7 +71,6 @@ def cl_table_main():
 
 @app.route('/cl_ads_list', methods=['POST'])
 def cl_ad_list():
-    pprint( request.form )
     try:
         offset = int(request.args.get('jtStartIndex'))
         limit = int(request.args.get('jtPageSize'))
@@ -86,19 +85,25 @@ def cl_ad_list():
         like = '%{}%'.format(request.form['search'])
         ads = ClAd.query.filter( ( ClAd.title.like(like) )|( ClAd.description.like(like) ) ).\
                 order_by( query_order[request.args.get('jtSorting')]() ).offset(offset).limit(limit)
+        total = ClAd.query.filter( ( ClAd.title.like(like) )|( ClAd.description.like(like) ) ).\
+                order_by( query_order[request.args.get('jtSorting')]() ).count()
     elif 'tags' in request.form:
         keywords = json.loads(request.form['tags'])
         params, where_clause = prep_query(keywords)
-        order = request.args.get('jtSorting') if request.args.get('jtSorting') in query_order else 'ad_id DESC'
+        if request.args.get('jtSorting') in query_order and request.args.get('jtSorting') is not None:
+            order = request.args.get('jtSorting')
+        else:
+            order = 'ad_id DESC'
         sql = 'select distinct * from cl_ad where{} order by {} limit {} offset {};'.format( where_clause, order, limit, offset )
-        print(sql)
-        print(params)
         ads = db.engine.execute( sql, params )
-        pprint( ads )
+        sql = 'select distinct count(*) from cl_ad where{} order by {};'.format( where_clause, order )
+        total = db.engine.execute( sql, params )
+        total = [e for e in total][0][0]
     else:
         ads = ClAd.query.order_by( query_order[request.args.get('jtSorting')]() ).offset(offset).limit(limit)
+        total = ClAd.query.order_by( query_order[request.args.get('jtSorting')]() ).count()
 
-    result = {'Result':'OK', 'Records':[]}
+    result = {'Result':'OK', 'TotalRecordCount': total, 'Records':[]}
     for e in ads:
         row = {'ad_id': e.ad_id,
             'state': e.state,
