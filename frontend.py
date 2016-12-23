@@ -1,5 +1,7 @@
+from pprint import pprint
+
 from flask import Flask, Response, request
-from flask import render_template, url_for, jsonify
+from flask import render_template, url_for, jsonify, json
 
 from flask_sqlalchemy import SQLAlchemy
 
@@ -9,7 +11,7 @@ app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = connection_str
 # set SQLALCHEMY_POOL_RECYCLE to 10 (seconds?) less than mysql
 # wait_timeout which is currently 600
-# hopefully this will eleminate the connection error encounter
+# hopefully this will eleminate the connection error encountered
 # after the database sits idle
 app.config['SQLALCHEMY_POOL_RECYCLE'] = 590
 db = SQLAlchemy(app)
@@ -42,6 +44,26 @@ class ClAd(db.Model):
         self.dt = dt
         self.new = new
 
+def prep_query(keywords):
+    params = []
+    where_clause = []
+    flag = True
+    for e in keywords:
+        temp = '%{}%'.format(e)
+        params.append(temp)
+        params.append(temp)
+        if flag:
+            where_clause.append(' title like %s or description like %s')
+            flag = False
+        else:
+            where_clause.append(' or title like %s or description like %s')
+
+    where_clause = ''.join(where_clause)
+    return params, where_clause
+
+@app.route('/test')
+def test():
+    return render_template('test.html')
 
 @app.route('/cl_ads_table', methods=['GET'])
 def cl_table_main():
@@ -49,6 +71,7 @@ def cl_table_main():
 
 @app.route('/cl_ads_list', methods=['POST'])
 def cl_ad_list():
+    pprint( request.form )
     try:
         offset = int(request.args.get('jtStartIndex'))
         limit = int(request.args.get('jtPageSize'))
@@ -63,6 +86,15 @@ def cl_ad_list():
         like = '%{}%'.format(request.form['search'])
         ads = ClAd.query.filter( ( ClAd.title.like(like) )|( ClAd.description.like(like) ) ).\
                 order_by( query_order[request.args.get('jtSorting')]() ).offset(offset).limit(limit)
+    elif 'tags' in request.form:
+        keywords = json.loads(request.form['tags'])
+        params, where_clause = prep_query(keywords)
+        order = request.args.get('jtSorting') if request.args.get('jtSorting') in query_order else 'ad_id DESC'
+        sql = 'select distinct * from cl_ad where{} order by {} limit {} offset {};'.format( where_clause, order, limit, offset )
+        print(sql)
+        print(params)
+        ads = db.engine.execute( sql, params )
+        pprint( ads )
     else:
         ads = ClAd.query.order_by( query_order[request.args.get('jtSorting')]() ).offset(offset).limit(limit)
 

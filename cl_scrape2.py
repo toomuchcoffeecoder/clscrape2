@@ -41,7 +41,7 @@ class CLScrape:
     def get_ads(self, site):
         url = 'http:{}{}'.format(site['city_href'], self.url_suffix)
         print(url)
-        # response = requests.get( url, proxies={'http': 'http://45.56.93.146:3128','https': 'https://45.56.93.146:3128'} )
+        # response = requests.get( url, proxies=proxies )
         response = requests.get( url, proxies=None )
         return {'state': site['state'],
                 'city': site['city'],

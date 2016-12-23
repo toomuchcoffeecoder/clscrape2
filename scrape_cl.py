@@ -24,7 +24,6 @@ cl_ad = Table('cl_ad', metadata,
 )
 metadata.create_all(engine)
 
-
 if __name__ == '__main__':
     conn = engine.connect()
     updt = cl_ad.update().where(cl_ad.c.new==True).values(new=False)

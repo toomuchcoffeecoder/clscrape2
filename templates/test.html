@@ -1,0 +1,108 @@
+{% extends "base.html" %}
+{% block head %}
+    {{ super() }}
+    <!-- Include one of jTable styles. -->
+    <link href="{{url_for('static', filename='jquery-ui-1.12.1/jquery-ui.min.css')}}" rel="stylesheet" type="text/css" />
+    <script src="{{url_for('static', filename='js/jquery-3.1.1.min.js')}}" type="text/javascript"></script>
+    <script src="{{url_for('static', filename='jquery-ui-1.12.1/jquery-ui.min.js')}}" type="text/javascript"></script>
+    <style>
+    .searchtag {margin: 3px;
+                font-family: sans-serif;
+                height: 1.5em;
+                font-size: 0.8em;
+                background-color: lightblue;
+                padding-left: 2px;
+                padding-right: 6px;
+                cursor: default;}
+            
+    div.searchtag > span {font-family: monospace;}
+            
+    .searchtags {display: flex;
+                height: 100px;
+                width: 450px;
+                border-style: inset;
+                /* border-radius: 8px; */
+                flex-wrap: wrap;}
+            
+    input.search-ctrl {border-style: outset;
+                border-radius: 3px;
+                margin-bottom: 2px;}
+
+    input[type=text] {border-style: inset;
+                border-radius: 4px;}
+   
+    label {font-family: sans-serif;}
+    </style>
+    <script type="text/javascript">
+        $(document).ready(function () {
+
+            $( "#search_form" ).submit(function( event ) {
+                    var search = $("#search_term").val()
+                    $('#CLAdTableContainer').jtable('load', {search: search})
+                    event.preventDefault();
+            })
+        })
+        
+   
+    </script>
+
+{% endblock %}
+{% block content %}
+<div style="display: flex; flex-wrap: wrap; align-items: center;">
+    <form id="search_form" style="display: flex; flex-direction: row; align-items: center; margin-right: 15px;">
+        <div>
+            <label for="search">Search</label>
+            <input type="text" id="search_term" name="search">
+        </div>
+        <div style="display: flex; flex-direction: column; margin-left: 8px;">
+            <input class="search-ctrl" type="submit" value="Search">
+            <input id="addtag" class="search-ctrl" type="button" value="Add Tag">
+            <input class="search-ctrl" type="button" value="Search Tags">
+        </div>
+    </form>
+    <div id="searchtags" class="searchtags">
+    </div>
+</div>
+
+{% endblock %}
+{% block last %}
+<script>
+function initialize_tags() {
+    tags_comma_sep = document.cookie.replace(/(?:(?:^|.*;\s*)tags\s*\=\s*([^;]*).*$)|^.*$/, "$1")
+    tags = tags_comma_sep.split(",")
+}
+
+function store_tag(tag) {
+    if ( tags.indexOf( tag ) === -1 ) {
+        tags.push(tag)
+        document.cookie = "tags=" + tags.join(",")
+    }
+}
+
+function remove_tag(e) {
+    tags.splice( parseInt( e.getAttribute( 'idx' ) ), 1 )
+    document.cookie = "tags=" + tags.join(",")
+}
+
+function draw_tags() {
+    var tag_divs = []
+    for (i = 0; i < tags.length; i++) {
+        tag_divs.push( '<div class="searchtag" idx=' + i.toString() + ' onclick="remove_tag(this); draw_tags();"><span>x </span>' + tags[i] + '</div>' )
+    }
+    document.getElementById("searchtags").innerHTML = tag_divs.join("")
+}
+
+tags = []
+
+initialize_tags()
+draw_tags()
+
+add_tag_btn = document.getElementById("addtag")
+add_tag_btn.onclick = function () {
+    tag = document.getElementById( "search_term" ).value
+    store_tag( tag.trim() )
+    draw_tags()
+}
+</script>
+{% endblock %}
+
