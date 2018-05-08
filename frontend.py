@@ -1,3 +1,4 @@
+from functools import lru_cache
 from pprint import pprint
 
 from flask import Flask, Response, request
@@ -14,6 +15,7 @@ app.config['SQLALCHEMY_DATABASE_URI'] = connection_str
 # hopefully this will eleminate the connection error encountered
 # after the database sits idle
 app.config['SQLALCHEMY_POOL_RECYCLE'] = 590
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db = SQLAlchemy(app)
 
 
@@ -121,6 +123,6 @@ def cl_ad_list():
 
 if __name__ == '__main__':
     app.run(host = '0.0.0.0',
-            debug = True,
+            debug = False,
             port=9191)
 

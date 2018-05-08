@@ -1,4 +1,4 @@
-from pprint import pprint
+from pprint import pprint, pformat
 import re
 
 import bs4
@@ -39,7 +39,8 @@ class CLScrape:
                                 'city_href': city['href']}
 
     def get_ads(self, site):
-        url = 'http:{}{}'.format(site['city_href'], self.url_suffix)
+        # url = 'http:{}{}'.format(site['city_href'], self.url_suffix)
+        url = '{}{}'.format(site['city_href'], self.url_suffix)
         print(url)
         # response = requests.get( url, proxies=proxies )
         response = requests.get( url, proxies=None )
@@ -54,9 +55,19 @@ class CLScrape:
             title = e.find('title').contents[0]
             m = self.re_CDATA.search(title)
             title = m.group(0)
-            description = e.find('description').contents[0]
-            m = self.re_CDATA.search(description)
-            description = m.group(0)
+            if e.find('description') is not None:
+                description = e.find('description').contents[0]
+                try:
+                    m = self.re_CDATA.search(description)
+                    description = m.group(0)
+                except AttributeError as err:
+                    print(err)
+                    with open('error_report.txt', 'a') as f:
+                        f.write(page['state'] + '\n')
+                        f.write(page['city'] + '\n')
+                        f.write(pformat(e))
+                        continue
+
             m = self.re_link.search(str(e))
             link = m.group(0)
             m = self.re_link_key.search(link)
