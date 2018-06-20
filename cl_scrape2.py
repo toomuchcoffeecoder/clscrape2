@@ -44,6 +44,7 @@ class CLScrape:
         print(url)
         # response = requests.get( url, proxies=proxies )
         response = requests.get( url, proxies=None )
+        print('statuse code = {}'.format(response.status_code))
         return {'state': site['state'],
                 'city': site['city'],
                 'page': response.text}

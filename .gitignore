@@ -8,4 +8,5 @@ scratch*
 .gitignore
 settings.py
 static/jtable.2.4.0.zip
-
+*.sql
+*.txt
